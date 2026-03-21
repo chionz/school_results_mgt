@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Results</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7fb;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #4f46e5;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        .add-btn {
+            border: 1px solid;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .main-card {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .subjects-card {
+            width: 220px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .subject-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .subject-id {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .subject-header h3 {
+            margin: 0;        
+            }
+
+        .subject-header button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            }
+
+        @media (max-width:900px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .subjects-card {
+                width: 100%;
+                position: relative;
+            }
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        th {
+            background: #fafafa;
+            font-size: 14px;
+        }
+
+        .total-score {
+            /* background: bisque; */
+            font-weight: 800;
+        }
+
+        .right-border {
+            border-right: 1px solid #eee;
+            background-color: bisque;
+        }
+
+        .right-border input {
+            background: transparent;
+            border: none;
+        }
+
+        th.student-name,
+        .student-name {
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 2;
+        }
+
+        .score-input {
+            width: 40px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .save-btn {
+            background: #16a34a;
+            margin-top: 10px;
+        }
+
+        @media (max-width:600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h2 id="classTitle">Class</h2>
+            <button onclick="goToAddStudent()">Add Student</button>
+        </div>
+
+        <div class="layout">
+
+            <div class="card main-card">
+                <div class="table-wrapper">
+                    <table id="resultsTable">
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card subjects-card">
+                <div class="subject-header">
+                    <h3>Subjects</h3>
+                    <div class="add-btn" onclick="goToAddSubject()">+</div>
+                </div>
+                <div id="subjectsList"></div>
+            </div>
+
+         </div>
+
+    </div>
+
+    <script>
+        const classId = new URLSearchParams(window.location.search).get("class_id");
+
+        let subjects = [];
+        let students = [];
+
+        function goToAddStudent() {
+            window.location.href = `/app/dashboard/add-student?class_id=${classId}`;
+        }
+
+        function goToAddSubject() {
+            window.location.href = `/app/dashboard/add-subject?class_id=${classId}`;
+        }
+
+        async function loadClassResults() {
+            const res = await fetch(`/api/scores/class-results/${classId}`);
+            const data = await res.json();
+
+            subjects = data.subjects;
+            students = data.students;
+
+            document.getElementById("classTitle").innerText = `${data.class_name} Results`;
+        }
+
+        function buildTableHead() {
+            let headRow = `<tr><th class="student-name">Student</th>`;
+
+            subjects.forEach(sub => {
+                headRow += `<th colspan="5">${sub.name}</th>`;
+            });
+
+            headRow += `
+                <th rowspan="2">Overall Total</th>
+                <th rowspan="2">Position</th>
+                <th rowspan="2">Action</th>
+            </tr><tr><th></th>
+            `;
+
+            subjects.forEach(() => {
+                headRow += `
+                    <th>T1</th>
+                    <th>T2</th>
+                    <th>T3</th>
+                    <th>Exam</th>
+                    <th class="right-border">Total</th>
+                `;
+            });
+
+            headRow += `</tr>`;
+
+            document.getElementById("tableHead").innerHTML = headRow;
+        }
+
+        function buildTableBody() {
+            const body = document.getElementById("tableBody");
+            body.innerHTML = "";
+
+            students.forEach(student => {
+
+                let row = `
+                <tr>
+                <td class="student-name">${student.name}</td>
+                `;
+
+                subjects.forEach(subject => {
+
+                    const score = student.subjects.find(
+                        s => s.subject_id === subject.id
+                    ) || {};
+
+                    row += `
+                    <td>
+                        <input class="score-input"
+                        value="${score.test1 ?? ""}"
+                        data-type="test1"
+                        data-student="${student.id}"
+                        data-subject="${subject.id}">
+                    </td>
+
+                    <td>
+                        <input class="score-input"
+                        value="${score.test2 ?? ""}"
+                        data-type="test2"
+                        data-student="${student.id}"
+                        data-subject="${subject.id}">
+                    </td>
+
+                    <td>
+                        <input class="score-input"
+                        value="${score.test3 ?? ""}"
+                        data-type="test3"
+                        data-student="${student.id}"
+                        data-subject="${subject.id}">
+                    </td>
+
+                    <td>
+                        <input class="score-input"
+                        value="${score.exam ?? ""}"
+                        data-type="exam"
+                        data-student="${student.id}"
+                        data-subject="${subject.id}">
+                    </td>
+
+                    <td class="right-border">
+                        <input class="score-input total-score"
+                        value="${score.total ?? ""}"
+                        disabled 
+                        data-type="total"
+                        data-student="${student.id}"
+                        data-subject="${subject.id}"
+                        >
+                    </td>
+                    `;
+                });
+
+                row += `
+                    <td><strong>${student.total ?? 0}</strong></td>
+                    <td><strong>${student.position ?? "-"}</strong></td>
+                    <td>
+                        <button onclick="viewStudentResult(${student.id})">
+                            View
+                        </button>
+                    </td>
+                </tr>
+                `;
+
+                body.innerHTML += row;
+            });
+
+            addInputListeners();
+        }
+
+        function addInputListeners() {
+            const inputs = document.querySelectorAll(".score-input:not(.total-score)");
+
+            inputs.forEach((input, index) => {
+                input.addEventListener("change", saveScore);
+
+                input.addEventListener("keydown", async function (e) {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+
+                        const studentId = input.dataset.student;
+                        const subjectId = input.dataset.subject;
+
+                        // Update total instantly
+                        updateSubjectTotal(studentId, subjectId);
+
+                        await saveScore({ target: input });
+
+                        // move to next input
+                        const nextInput = inputs[index + 1];
+                        if (nextInput) {
+                            nextInput.focus();
+                            nextInput.select();
+                        }
+                    }
+                });
+            });
+        }
+
+        async function saveScore(e) {
+            const input = e.target;
+
+            const value = input.value === "" ? null : Number(input.value);
+
+            const payload = {
+                student_id: Number(input.dataset.student),
+                subject_id: Number(input.dataset.subject),
+                [input.dataset.type]: value
+            };
+
+            await fetch(`/api/scores/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+        }
+
+        async function init() {
+            await loadClassResults();
+            buildTableHead();
+            buildTableBody();
+            renderSubjectsPanel();
+        }
+
+        function renderSubjectsPanel() {
+            const container = document.getElementById("subjectsList");
+            container.innerHTML = "";
+
+            subjects.forEach(subject => {
+                container.innerHTML += `
+                    <div class="subject-item">
+                        <strong>${subject.name}</strong>
+                        <div class="subject-id">ID: ${subject.id}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateSubjectTotal(studentId, subjectId) {
+            const t1 = document.querySelector(
+                `[data-student="${studentId}"][data-subject="${subjectId}"][data-type="test1"]`
+            );
+
+            const t2 = document.querySelector(
+                `[data-student="${studentId}"][data-subject="${subjectId}"][data-type="test2"]`
+            );
+
+            const t3 = document.querySelector(
+                `[data-student="${studentId}"][data-subject="${subjectId}"][data-type="test3"]`
+            );
+
+            const exam = document.querySelector(
+                `[data-student="${studentId}"][data-subject="${subjectId}"][data-type="exam"]`
+            );
+
+            const totalInput = document.querySelector(
+                `[data-student="${studentId}"][data-subject="${subjectId}"][data-type="total"]`
+            );
+
+            const total =
+                (Number(t1?.value) || 0) +
+                (Number(t2?.value) || 0) +
+                (Number(t3?.value) || 0) +
+                (Number(exam?.value) || 0);
+
+            if (totalInput) {
+                totalInput.value = total;
+            }
+        }
+
+        function viewStudentResult(studentId) {
+            window.location.href = `/app/dashboard/student-result?student_id=${studentId}`;
+        }
+
+        init();
+</script>
+
+</body>
+
+</html>

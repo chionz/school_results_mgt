@@ -1,0 +1,116 @@
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+
+body, html { height:100%; background:#f4f4f4; }
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #4facfe;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-250px);
+}
+
+.logo {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.sidebar-menu {
+    list-style: none;
+    margin-top: 20px;
+}
+
+.sidebar-menu li {
+    margin: 10px 0;
+}
+
+.sidebar-menu li a {
+    display: block;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.sidebar-menu li a:hover,
+.sidebar-menu li a.active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: #fff;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+header h1 {
+    flex: 1;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.toggle-btn {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Dashboard welcome */
+.dashboard-welcome {
+    padding: 20px;
+    text-align: center;
+}
+
+.dashboard-welcome h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.dashboard-welcome p {
+    color: #666;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        z-index: 1000;
+        height: 100%;
+        transform: translateX(-250px);
+    }
+
+    .sidebar.collapsed {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        flex: 1;
+        position: relative;
+    }
+}

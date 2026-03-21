@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Result Management System</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>RMS</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active">Dashboard</a></li>
+                <li><a href="#">Add Students</a></li>
+                <li><a href="#">Add Subjects</a></li>
+                <li><a href="#">Enter Scores</a></li>
+                <li><a href="#">View Results</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <header>
+                <button id="toggleSidebar" class="toggle-btn">☰</button>
+                <h1>Dashboard</h1>
+            </header>
+
+            <section class="dashboard-welcome">
+                <h2>Welcome, Teacher!</h2>
+                <p>Select an option from the sidebar to get started.</p>
+            </section>
+
+            <section id="content-area">
+                <!-- Dynamic views will be rendered here via JS -->
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
