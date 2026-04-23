@@ -14,7 +14,7 @@ def add_or_update_score(schema: scoreSchema, db: Session = Depends(get_db)):
     return score
 
 @scoresrouter.get("/{student_id}")
-def get_scores_for_student(student_id: int, db: Session = Depends(get_db)):
+def get_student_result(student_id: int, db: Session = Depends(get_db)):
     result = score_service.get_student_score(db=db, student_id=student_id)
     return result
 

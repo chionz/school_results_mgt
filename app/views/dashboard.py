@@ -33,8 +33,17 @@ def class_result(request: Request):
         "templates_env": templates_env,
     })
 
+@viewrouter.get("/student-result", response_class=HTMLResponse)
+def student_result(request: Request):
+    template = templates_env.get_template("result.html")
+    return template.render({
+        "request": request,
+        "title": "Class Dashboard",
+        "templates_env": templates_env,
+    })
+
 @viewrouter.get("/add-subject", response_class=HTMLResponse)
-def class_result(request: Request):
+def add_subject(request: Request):
     template = templates_env.get_template("add-subject-to-class.html")
     return template.render({
         "request": request,
@@ -43,7 +52,7 @@ def class_result(request: Request):
     })
 
 @viewrouter.get("/add-student", response_class=HTMLResponse)
-def class_result(request: Request):
+def add_student(request: Request):
     template = templates_env.get_template("create-student.html")
     return template.render({
         "request": request,

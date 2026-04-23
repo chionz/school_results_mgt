@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Result Sheet</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+
+    .container {
+        border: 2px solid #000;
+        padding: 10px;
+    }
+
+    h1, h2, h3 {
+        text-align: center;
+        margin: 2px;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        width: 80px;
+        height: 80px;
+        border: 1px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    .school-info {
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    .top-fields {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+    .left-fields, .right-fields {
+        width: 48%;
+    }
+
+    .field {
+        margin: 4px 0;
+    }
+
+    .line {
+        display: inline-block;
+        border-bottom: 1px solid #000;
+        width: 150px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 12px;
+    }
+
+    th, td {
+        border: 1px solid #000;
+        padding: 4px;
+        text-align: center;
+    }
+
+    .main-table {
+        display: flex;
+        gap: 10px;
+    }
+
+    .subjects {
+        width: 65%;
+    }
+
+    .side {
+        width: 35%;
+    }
+
+    .small-table td {
+        text-align: left;
+    }
+
+    .footer-section {
+        margin-top: 10px;
+    }
+
+    .signature-line {
+        border-bottom: 1px solid #000;
+        width: 200px;
+        display: inline-block;
+    }
+
+    @media print {
+        body {
+            margin: 0;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="logo">LOGO</div>
+
+        <div class="school-info">
+            <h2>EBONYI STATE SCHOOL SYSTEM</h2>
+            <h3>GOD KEEPS SECONDARY SCHOOL</h3>
+            <p>4 NSUKKA STREET ABAKALIKI</p>
+            <p><b>Motto:</b> With God, Yes We Can Do It (John 15:5)</p>
+            <h3>Junior Secondary School</h3>
+            <p><b>Individual Student's Termly Result Sheet</b></p>
+        </div>
+    </div>
+
+    <div class="top-fields">
+        <div class="left-fields">
+            <div class="field">Name: <span class="line" id="name"></span></div>
+            <div class="field">Sex: <span class="line"></span></div>
+            <div class="field">Admission No: <span class="line"></span></div>
+            <div class="field">House: <span class="line"></span></div>
+            <div class="field">Intellectual Group: <span class="line"></span></div>
+        </div>
+
+        <div class="right-fields">
+            <div class="field">Class: <span class="line"></span></div>
+            <div class="field">Position: <span class="line"></span></div>
+            <div class="field">Total Marks: <span class="line"></span></div>
+            <div class="field">Average: <span class="line"></span></div>
+            <div class="field">Term: <span class="line"></span></div>
+            <div class="field">Year: <span class="line"></span></div>
+        </div>
+    </div>
+
+    <div class="main-table">
+
+        <!-- SUBJECT TABLE -->
+        <table class="subjects">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>1st Test</th>
+                    <th>2nd Test</th>
+                    <th>3rd Test</th>
+                    <th>Exam</th>
+                    <th>Total</th>
+                    <th>Average</th>
+                    <th>Grade</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody id="subjectsBody"></tbody>
+
+            <tr>
+                <th>Total</th>
+                <td colspan="8" id="overallTotal"></td>
+            </tr>
+        </table>
+
+        <!-- SIDE TABLE -->
+        <table class="side small-table">
+            <tr><th colspan="2">Key to Ratings</th></tr>
+            <tr><td>5 - Excellent</td><td>1 - Very Poor</td></tr>
+
+            <tr><th colspan="2">Social Behaviour</th></tr>
+            <tr><td>Punctuality</td><td></td></tr>
+            <tr><td>Attentiveness</td><td></td></tr>
+            <tr><td>Neatness</td><td></td></tr>
+            <tr><td>Honesty</td><td></td></tr>
+            <tr><td>Obedience</td><td></td></tr>
+
+            <tr><th colspan="2">Motor Skill</th></tr>
+            <tr><td>Sports</td><td></td></tr>
+
+            <tr><th colspan="2">Fees</th></tr>
+            <tr><td>School Fees</td><td></td></tr>
+            <tr><td>PTA</td><td></td></tr>
+        </table>
+
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="footer-section">
+        <p>Form Teacher's Comment: <span class="signature-line"></span></p>
+        <p>Guidance Counselor's Comment: <span class="signature-line"></span></p>
+        <p>Principal's Comment: <span class="signature-line"></span></p>
+
+        <p>Next Term Begins: <span class="signature-line"></span></p>
+        <p>Signature: <span class="signature-line"></span></p>
+        <p>Date & Stamp: <span class="signature-line"></span></p>
+    </div>
+
+</div>
+
+</body>
+</html>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const studentId = params.get("student_id");
+    const classId = params.get("class_id");
+    const studentName = document.getElementById("name");
+
+    async function loadStudentResult() {
+        const res = await fetch(`/api/scores/${studentId}`);
+        const data = await res.json();
+        console.log(data);
+        studentName.innerText = `${data.student_info.name} (ID: ${data.student_info.id})`;
+
+        renderSubjects(data.subjects);
+
+        document.getElementById("overallTotal").innerText =
+            `Total: ${data.overall_total} | Average: ${data.overall_average}`;
+    }
+
+    function renderSubjects(subjects) {
+        const body = document.getElementById("subjectsBody");
+        body.innerHTML = "";
+
+        subjects.forEach(sub => {
+            const avg = (sub.total / 4).toFixed(2);
+            const grade = getGrade(sub.total);
+            const remark = getRemark(sub.total);
+
+            body.innerHTML += `
+            <tr>
+                <td>${sub.subject}</td>
+                <td>${sub.test1 ?? ""}</td>
+                <td>${sub.test2 ?? ""}</td>
+                <td>${sub.test3 ?? ""}</td>
+                <td>${sub.exam ?? ""}</td>
+                <td><strong>${sub.total}</strong></td>
+                <td>${avg}</td>
+                <td>${grade}</td>
+                <td>${remark}</td>
+            </tr>
+            `;
+        });
+    }
+
+    function getGrade(score) {
+        if (score >= 75) return "A";
+        if (score >= 65) return "B";
+        if (score >= 55) return "C";
+        if (score >= 45) return "D";
+        if (score >= 40) return "E";
+        return "F";
+    }
+
+    function getRemark(score) {
+        if (score >= 75) return "Excellent";
+        if (score >= 65) return "Very Good";
+        if (score >= 55) return "Good";
+        if (score >= 45) return "Fair";
+        if (score >= 40) return "Pass";
+        return "Fail";
+    }
+
+loadStudentResult();
+</script>

@@ -42,6 +42,9 @@ class ScoreService():
     
     def get_student_score(self, db: Session, student_id: int):
         scores = db.query(Score).filter(Score.student_id == student_id).all()
+        if not scores:
+            return None
+        student = scores[0].student
         result = []
         overall_total = 0
 
@@ -62,6 +65,12 @@ class ScoreService():
         overall_average = overall_total / len(scores) if scores else 0
 
         return {
+            "student_info": {
+                "id": student.id,
+                "name": student.name,
+                "class_id": student.class_id,
+                "class_number": student.class_number
+            },  
             "student_id": student_id,
             "subjects": result,
             "number_of_subjects": len(scores),
