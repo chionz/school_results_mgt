@@ -97,15 +97,12 @@ class ScoreService:
             )
 
         score = db.query(Score).filter_by(student_id=schema.student_id, subject_id=schema.subject_id).first()
+        provided_fields = schema.model_fields_set
         if score:
-            if schema.test1 is not None:
-                score.test1 = schema.test1
-            if schema.test2 is not None:
-                score.test2 = schema.test2
-            if schema.test3 is not None:
-                score.test3 = schema.test3
-            if schema.exam is not None:
-                score.exam = schema.exam
+            for field_name in ("test1", "test2", "test3", "exam"):
+                if field_name in provided_fields:
+                    value = getattr(schema, field_name)
+                    setattr(score, field_name, value if value is not None else 0)
         else:
             score = Score(
                 student_id=schema.student_id,

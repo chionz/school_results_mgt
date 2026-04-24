@@ -1,22 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="card">
-    <div class="card-head">
-        <div>
-            <p class="panel-label">Class selection</p>
-            <h3>Choose class for score entry</h3>
+<section class="content-grid content-grid--wide content-grid--top">
+    <article class="card">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Class selection</p>
+                <h3>Choose class for score entry</h3>
+                <p class="muted-copy">Pick a class to load the editable score sheet for the subjects you are allowed to manage.</p>
+            </div>
         </div>
-    </div>
-    <div class="selector-row">
-        <select id="scoreClassSelect">
-            <option value="">Select class</option>
-            {% for class_item in classes %}
-            <option value="{{ class_item.id }}">{{ class_item.name }}</option>
-            {% endfor %}
-        </select>
-        <span class="muted-copy">Admins can edit all subjects. Teachers can edit only the subjects assigned to them.</span>
-    </div>
+        <div class="selector-row">
+            <select id="scoreClassSelect">
+                <option value="">Select class</option>
+                {% for class_item in classes %}
+                <option value="{{ class_item.id }}">{{ class_item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </article>
+
+    <article class="card card--soft">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">How it works</p>
+                <h3>Save as you go</h3>
+            </div>
+        </div>
+        <p class="muted-copy">Scores save when you change a field. Administrators can edit every subject, while teachers can edit only their assigned subjects.</p>
+    </article>
 </section>
 
 <section class="card">
@@ -24,6 +36,7 @@
         <div>
             <p class="panel-label">Entry grid</p>
             <h3 id="scoreEntryTitle">Select a class to begin</h3>
+            <p class="muted-copy">Totals update automatically for each subject row after save.</p>
         </div>
     </div>
     <div id="scoreEntryMeta" class="chips-row"></div>
@@ -43,6 +56,7 @@
 {% block scripts %}
 <script>
     const scoreClassSelect = document.getElementById("scoreClassSelect");
+    const escapeHtml = window.rms.escapeHtml;
     const params = new URLSearchParams(window.location.search);
     if (params.get("class_id")) {
         scoreClassSelect.value = params.get("class_id");
@@ -55,12 +69,12 @@
         document.getElementById("scoreEntryTitle").textContent = `${data.class_name} score entry`;
 
         meta.innerHTML = data.subjects.map((subject) => `
-            <span class="pill">${subject.name}${subject.teacher_name ? ` • ${subject.teacher_name}` : ""}</span>
+            <span class="pill">${escapeHtml(subject.name)}${subject.teacher_name ? ` • ${escapeHtml(subject.teacher_name)}` : ""}</span>
         `).join("");
 
         let topRow = '<tr><th rowspan="2">Class no.</th><th rowspan="2">Student</th>';
         data.subjects.forEach((subject) => {
-            topRow += `<th colspan="5">${subject.name}</th>`;
+            topRow += `<th colspan="5">${escapeHtml(subject.name)}</th>`;
         });
         topRow += '</tr><tr>';
         data.subjects.forEach(() => {
@@ -71,40 +85,53 @@
 
         body.innerHTML = data.students.map((student) => {
             const subjectCells = student.subjects.map((subject) => `
-                <td><input class="score-input" data-field="test1" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test1 || ""}"></td>
-                <td><input class="score-input" data-field="test2" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test2 || ""}"></td>
-                <td><input class="score-input" data-field="test3" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test3 || ""}"></td>
-                <td><input class="score-input" data-field="exam" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.exam || ""}"></td>
-                <td><input class="score-total" value="${subject.total || 0}" disabled></td>
+                <td><input class="score-input" type="number" min="0" max="100" step="0.01" data-field="test1" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test1 ?? ""}"></td>
+                <td><input class="score-input" type="number" min="0" max="100" step="0.01" data-field="test2" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test2 ?? ""}"></td>
+                <td><input class="score-input" type="number" min="0" max="100" step="0.01" data-field="test3" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test3 ?? ""}"></td>
+                <td><input class="score-input" type="number" min="0" max="100" step="0.01" data-field="exam" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.exam ?? ""}"></td>
+                <td><input class="score-total" data-total-id="${student.id}-${subject.subject_id}" value="${subject.total || 0}" disabled></td>
             `).join("");
 
             return `
                 <tr>
                     <td><strong>${student.class_number}</strong></td>
-                    <td>${student.name}</td>
+                    <td>${escapeHtml(student.name)}</td>
                     ${subjectCells}
                 </tr>
             `;
         }).join("");
 
         body.querySelectorAll(".score-input").forEach((input) => {
+            input.addEventListener("focus", () => {
+                input.dataset.lastValue = input.value;
+            });
+
             input.addEventListener("change", async (event) => {
                 const target = event.target;
+                const nextValue = target.value === "" ? 0 : Number(target.value);
+                target.value = Number.isFinite(nextValue) ? String(nextValue) : "0";
+                target.disabled = true;
                 const payload = {
                     student_id: Number(target.dataset.student),
                     subject_id: Number(target.dataset.subject),
-                    [target.dataset.field]: target.value === "" ? null : Number(target.value)
+                    [target.dataset.field]: Number(target.value)
                 };
 
                 try {
-                    await window.rms.request("/api/scores/", {
+                    const response = await window.rms.request("/api/scores/", {
                         method: "POST",
                         body: JSON.stringify(payload)
                     });
-                    window.rms.toast("Score saved.");
-                    loadScoreEntry(scoreClassSelect.value, false);
+                    const totalField = document.querySelector(`[data-total-id="${target.dataset.student}-${target.dataset.subject}"]`);
+                    if (totalField) {
+                        totalField.value = response.total;
+                    }
+                    target.dataset.lastValue = target.value;
                 } catch (error) {
+                    target.value = target.dataset.lastValue || "";
                     window.rms.toast(error.message, "error");
+                } finally {
+                    target.disabled = false;
                 }
             });
         });
@@ -112,6 +139,10 @@
 
     async function loadScoreEntry(classId, pushState = true) {
         if (!classId) {
+            document.getElementById("scoreEntryTitle").textContent = "Select a class to begin";
+            document.getElementById("scoreHead").innerHTML = "";
+            document.getElementById("scoreBody").innerHTML = '<tr><td class="empty-row">No class selected.</td></tr>';
+            document.getElementById("scoreEntryMeta").innerHTML = "";
             return;
         }
         if (pushState) {
@@ -125,7 +156,7 @@
             buildScoreTable(data);
         } catch (error) {
             document.getElementById("scoreHead").innerHTML = "";
-            document.getElementById("scoreBody").innerHTML = `<tr><td class="empty-row">${error.message}</td></tr>`;
+            document.getElementById("scoreBody").innerHTML = `<tr><td class="empty-row">${escapeHtml(error.message)}</td></tr>`;
             document.getElementById("scoreEntryMeta").innerHTML = "";
         }
     }

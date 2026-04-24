@@ -1,6 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if not is_admin %}
+<section class="card card--soft">
+    <div class="card-head">
+        <div>
+            <p class="panel-label">Read only</p>
+            <h3>Your class access</h3>
+        </div>
+    </div>
+    <p class="muted-copy">You can review the classes linked to your account and jump into students, scores, or results from here.</p>
+</section>
+{% endif %}
+
 <section class="content-grid content-grid--wide">
     {% if is_admin %}
     <article class="card">
@@ -8,6 +20,7 @@
             <div>
                 <p class="panel-label">Setup</p>
                 <h3>Create a class</h3>
+                <p class="muted-copy">Add the class once, then connect its students, subjects, and teacher ownership.</p>
             </div>
         </div>
         <form id="createClassForm" class="form-grid">
@@ -34,6 +47,7 @@
             <div>
                 <p class="panel-label">Directory</p>
                 <h3>Class list</h3>
+                <p class="muted-copy">Open the workflow you need directly from each class row.</p>
             </div>
         </div>
         <div class="table-wrap">

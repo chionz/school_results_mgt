@@ -7,6 +7,7 @@
             <div>
                 <p class="panel-label">Catalogue</p>
                 <h3>Create subject</h3>
+                <p class="muted-copy">Build the subject list once, then reuse it across multiple classes.</p>
             </div>
         </div>
         <form id="createSubjectForm" class="form-grid">
@@ -23,6 +24,7 @@
             <div>
                 <p class="panel-label">Permissions</p>
                 <h3>Assign subject to class</h3>
+                <p class="muted-copy">Choose which teacher can edit results for each subject in a class.</p>
             </div>
         </div>
         <form id="assignSubjectForm" class="form-grid form-grid--two">
@@ -65,6 +67,7 @@
         <div>
             <p class="panel-label">Reference</p>
             <h3>Class subject assignments</h3>
+            <p class="muted-copy">Switch classes above to review the current teaching allocation.</p>
         </div>
     </div>
     <div id="subjectAssignments" class="assignment-board"></div>
@@ -73,6 +76,8 @@
 
 {% block scripts %}
 <script>
+    const escapeHtml = window.rms.escapeHtml;
+
     async function renderAssignments(classId) {
         const container = document.getElementById("subjectAssignments");
         if (!classId) {
@@ -89,12 +94,12 @@
 
             container.innerHTML = assignments.map((assignment) => `
                 <div class="assignment-card">
-                    <strong>${assignment.subject_name}</strong>
-                    <p>${assignment.teacher_name || "No teacher assigned yet"}</p>
+                    <strong>${escapeHtml(assignment.subject_name)}</strong>
+                    <p>${assignment.teacher_name ? escapeHtml(assignment.teacher_name) : "No teacher assigned yet"}</p>
                 </div>
             `).join("");
         } catch (error) {
-            container.innerHTML = `<p class="empty-state">${error.message}</p>`;
+            container.innerHTML = `<p class="empty-state">${escapeHtml(error.message)}</p>`;
         }
     }
 

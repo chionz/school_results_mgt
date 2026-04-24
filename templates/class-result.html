@@ -1,22 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="card">
-    <div class="card-head">
-        <div>
-            <p class="panel-label">Class selection</p>
-            <h3>Choose class for full result view</h3>
+<section class="content-grid content-grid--wide content-grid--top">
+    <article class="card">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Class selection</p>
+                <h3>Choose class for full result view</h3>
+                <p class="muted-copy">This page is for administrators and assigned form teachers only.</p>
+            </div>
         </div>
-    </div>
-    <div class="selector-row">
-        <select id="resultClassSelect">
-            <option value="">Select class</option>
-            {% for class_item in classes %}
-            <option value="{{ class_item.id }}">{{ class_item.name }}</option>
-            {% endfor %}
-        </select>
-        <span class="muted-copy">This page is for administrators and assigned form teachers.</span>
-    </div>
+        <div class="selector-row">
+            <select id="resultClassSelect">
+                <option value="">Select class</option>
+                {% for class_item in classes %}
+                <option value="{{ class_item.id }}">{{ class_item.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </article>
+
+    <article class="card card--soft">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Result view</p>
+                <h3>Compare at a glance</h3>
+            </div>
+        </div>
+        <p class="muted-copy">Review totals, averages, positions, and open a printable result sheet for any student in the selected class.</p>
+    </article>
 </section>
 
 <section class="content-grid">
@@ -25,6 +37,7 @@
             <div>
                 <p class="panel-label">Summary</p>
                 <h3 id="resultClassTitle">Class results</h3>
+                <p class="muted-copy">Switch between setup actions and the live ranking table from the same page.</p>
             </div>
             <div class="stack-actions">
                 <a id="studentsLink" href="#" class="secondary-button">Manage students</a>
@@ -63,6 +76,7 @@
 {% block scripts %}
 <script>
     const resultClassSelect = document.getElementById("resultClassSelect");
+    const escapeHtml = window.rms.escapeHtml;
     const params = new URLSearchParams(window.location.search);
     if (params.get("class_id")) {
         resultClassSelect.value = params.get("class_id");
@@ -78,12 +92,12 @@
 
         document.getElementById("resultMeta").innerHTML = `
             <span class="pill">Students: ${data.student_count}</span>
-            <span class="pill">Form teacher: ${data.form_teacher_name || "Not assigned"}</span>
+            <span class="pill">Form teacher: ${data.form_teacher_name ? escapeHtml(data.form_teacher_name) : "Not assigned"}</span>
         `;
 
         let head = '<tr><th>Class no.</th><th>Student</th>';
         data.subjects.forEach((subject) => {
-            head += `<th>${subject.name}</th>`;
+            head += `<th>${escapeHtml(subject.name)}</th>`;
         });
         head += '<th>Total</th><th>Average</th><th>Position</th><th>Sheet</th></tr>';
         document.getElementById("resultHead").innerHTML = head;
@@ -91,7 +105,7 @@
         document.getElementById("resultBody").innerHTML = data.students.map((student) => `
             <tr>
                 <td><strong>${student.class_number}</strong></td>
-                <td>${student.name}</td>
+                <td>${escapeHtml(student.name)}</td>
                 ${student.subjects.map((subject) => `<td>${subject.total}</td>`).join("")}
                 <td><strong>${student.total}</strong></td>
                 <td>${student.average}</td>
@@ -103,9 +117,9 @@
         document.getElementById("subjectsPanel").innerHTML = data.subjects.length
             ? data.subjects.map((subject) => `
                 <div class="stack-item">
-                    <div>
-                        <strong>${subject.name}</strong>
-                        <p>${subject.teacher_name || "No subject teacher assigned"}</p>
+                    <div class="stack-item__main">
+                        <strong>${escapeHtml(subject.name)}</strong>
+                        <p>${subject.teacher_name ? escapeHtml(subject.teacher_name) : "No subject teacher assigned"}</p>
                     </div>
                 </div>
             `).join("")
@@ -114,6 +128,11 @@
 
     async function loadClassResults(classId, pushState = true) {
         if (!classId) {
+            document.getElementById("resultClassTitle").textContent = "Class results";
+            document.getElementById("resultMeta").innerHTML = "";
+            document.getElementById("resultHead").innerHTML = "";
+            document.getElementById("resultBody").innerHTML = '<tr><td class="empty-row">Select a class to view results.</td></tr>';
+            document.getElementById("subjectsPanel").innerHTML = '<p class="empty-state">No class selected.</p>';
             return;
         }
         if (pushState) {
@@ -127,7 +146,7 @@
             renderClassResults(data);
         } catch (error) {
             document.getElementById("resultHead").innerHTML = "";
-            document.getElementById("resultBody").innerHTML = `<tr><td class="empty-row">${error.message}</td></tr>`;
+            document.getElementById("resultBody").innerHTML = `<tr><td class="empty-row">${escapeHtml(error.message)}</td></tr>`;
             document.getElementById("subjectsPanel").innerHTML = '<p class="empty-state">No data to show.</p>';
         }
     }

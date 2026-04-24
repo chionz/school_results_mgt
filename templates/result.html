@@ -83,7 +83,7 @@
         </div>
         <div>
             <span>Teacher comment</span>
-            <strong>Promising performance. Keep improving.</strong>
+            <strong id="sheetComment">Promising performance. Keep improving.</strong>
         </div>
     </div>
 </section>
@@ -93,6 +93,15 @@
 <script>
     const params = new URLSearchParams(window.location.search);
     const studentId = params.get("student_id");
+    const escapeHtml = window.rms.escapeHtml;
+
+    function buildComment(averageScore) {
+        if (averageScore >= 75) return "Outstanding work. Keep the momentum steady.";
+        if (averageScore >= 65) return "Very strong performance. Keep pushing.";
+        if (averageScore >= 55) return "Good progress. There is room to climb higher.";
+        if (averageScore >= 45) return "Fair result. A stronger finish can lift the next term.";
+        return "Needs support and close follow-up next term.";
+    }
 
     async function loadStudentResultSheet() {
         if (!studentId) {
@@ -112,10 +121,12 @@
             document.getElementById("sheetAverage").textContent = `Average: ${data.overall_average}`;
             document.getElementById("sheetTotal").textContent = data.overall_total;
             document.getElementById("sheetSubjectCount").textContent = data.number_of_subjects;
+            document.getElementById("sheetSubtitle").textContent = `${data.student_info.class_name} • ${data.student_count} students in class`;
+            document.getElementById("sheetComment").textContent = buildComment(Number(data.overall_average));
 
             document.getElementById("sheetBody").innerHTML = data.subjects.map((subject) => `
                 <tr>
-                    <td>${subject.subject_name}</td>
+                    <td>${escapeHtml(subject.subject_name)}</td>
                     <td>${subject.test1}</td>
                     <td>${subject.test2}</td>
                     <td>${subject.test3}</td>
@@ -127,7 +138,7 @@
                 </tr>
             `).join("");
         } catch (error) {
-            document.getElementById("sheetBody").innerHTML = `<tr><td colspan="9" class="empty-row">${error.message}</td></tr>`;
+            document.getElementById("sheetBody").innerHTML = `<tr><td colspan="9" class="empty-row">${escapeHtml(error.message)}</td></tr>`;
         }
     }
 

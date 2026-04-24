@@ -66,6 +66,7 @@ class SubjectService:
         return {
             "id": link.id,
             "class_id": link.class_id,
+            "class_name": link.class_.name if link.class_ else None,
             "subject_id": link.subject_id,
             "subject_name": link.subject.name if link.subject else None,
             "teacher_id": link.teacher_id,

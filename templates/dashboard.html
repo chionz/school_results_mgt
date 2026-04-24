@@ -1,36 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="hero-strip">
-    <div>
+<section class="hero-banner">
+    <div class="hero-banner__copy">
         <p class="panel-label">Today’s workspace</p>
         <h2>{{ "School administration overview" if current_user.is_admin else "Your teaching workspace" }}</h2>
         <p class="muted-copy">
             Use the shortcuts below to move quickly between setup, score entry, class review, and printable student reports.
         </p>
+        <div class="hero-strip__actions">
+            <a href="/app/dashboard/score-entry" class="primary-button">Enter scores</a>
+            <a href="/app/dashboard/classes/result" class="secondary-button">View results</a>
+        </div>
     </div>
-    <div class="hero-strip__actions">
-        <a href="/app/dashboard/score-entry" class="primary-button">Enter scores</a>
-        <a href="/app/dashboard/classes/result" class="secondary-button">View results</a>
+    <div class="hero-banner__metrics">
+        <article class="stat-card stat-card--accent">
+            <span class="stat-card__label">Accessible classes</span>
+            <strong>{{ total_classes }}</strong>
+            <p>Classes visible to your account right now.</p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__label">Subject catalogue</span>
+            <strong>{{ total_subjects }}</strong>
+            <p>Total subjects available in the school setup.</p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__label">Form classes</span>
+            <strong>{{ form_classes|length }}</strong>
+            <p>Classes where full results can be reviewed.</p>
+        </article>
     </div>
-</section>
-
-<section class="stats-grid">
-    <article class="stat-card">
-        <span class="stat-card__label">Accessible classes</span>
-        <strong>{{ total_classes }}</strong>
-        <p>Classes visible to your account.</p>
-    </article>
-    <article class="stat-card">
-        <span class="stat-card__label">Subject catalogue</span>
-        <strong>{{ total_subjects }}</strong>
-        <p>Total subjects available in the school setup.</p>
-    </article>
-    <article class="stat-card">
-        <span class="stat-card__label">Form classes</span>
-        <strong>{{ form_classes|length }}</strong>
-        <p>Classes where full results can be reviewed.</p>
-    </article>
 </section>
 
 <section class="content-grid">
@@ -45,9 +44,12 @@
         <div class="stack-list">
             {% for class_item in classes %}
             <div class="stack-item">
-                <div>
+                <div class="stack-item__main">
                     <strong>{{ class_item.name }}</strong>
-                    <p>{{ class_item.student_count }} students • {{ class_item.subject_count }} subjects</p>
+                    <p>
+                        {{ class_item.student_count }} students • {{ class_item.subject_count }} subjects
+                        • {{ class_item.form_teacher_name or "No form teacher yet" }}
+                    </p>
                 </div>
                 <div class="stack-actions">
                     <a href="/app/dashboard/score-entry?class_id={{ class_item.id }}" class="chip-link">Scores</a>
@@ -73,11 +75,11 @@
         <div class="stack-list">
             {% for assignment in teaching_assignments %}
             <div class="stack-item">
-                <div>
+                <div class="stack-item__main">
                     <strong>{{ assignment.subject_name }}</strong>
-                    <p>{{ assignment.teacher_name or "Teacher not assigned" }}</p>
+                    <p>{{ assignment.class_name or ("Class " ~ assignment.class_id) }} • {{ assignment.teacher_name or "Teacher not assigned" }}</p>
                 </div>
-                <span class="pill">Class {{ assignment.class_id }}</span>
+                <span class="pill">Assigned</span>
             </div>
             {% else %}
             <p class="empty-state">No subject assignments are linked to your account yet.</p>

@@ -6,19 +6,93 @@
     <title>Result Management System</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
+<body class="marketing-body">
     <main class="marketing-shell">
         <section class="hero-card">
-            <div class="eyebrow">School Operations</div>
-            <h1>Clean result workflows for admins, subject teachers, and form teachers.</h1>
-            <p class="hero-copy">
-                Manage classes, assign teachers to subjects, enter scores only where permitted,
-                review full class standings, and print each student’s result sheet from one place.
-            </p>
-            <div class="hero-actions">
-                <a href="/app/login" class="primary-link">Sign in to dashboard</a>
-                <a href="/app/dashboard/" class="secondary-link">Open dashboard</a>
+            <div class="hero-grid">
+                <div class="hero-copy-block">
+                    <div class="eyebrow">School Operations Platform</div>
+                    <h1>Result workflows, class control, and printable reports in one calm workspace.</h1>
+                    <p class="hero-copy">
+                        Manage teachers, classes, subjects, score entry, class positions, and student result sheets
+                        from a single dashboard designed for administrators and teaching staff.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/app/login" class="primary-link">Sign in to workspace</a>
+                        <a href="/app/dashboard/" class="secondary-link">Go to dashboard</a>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-pill">
+                            <strong>Admin setup</strong>
+                            <span>Create classes, subjects, and teacher accounts.</span>
+                        </div>
+                        <div class="status-pill">
+                            <strong>Teacher access</strong>
+                            <span>Limit score entry to assigned subjects only.</span>
+                        </div>
+                        <div class="status-pill">
+                            <strong>Result sheets</strong>
+                            <span>Review rankings and print polished reports fast.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="showcase-panel">
+                    <div class="showcase-panel__window">
+                        <div class="window-bar">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="preview-grid">
+                            <article class="preview-metric">
+                                <span>Classes</span>
+                                <strong>Overview</strong>
+                                <p>Quick links for setup, score entry, and result review.</p>
+                            </article>
+                            <article class="preview-metric">
+                                <span>Permissions</span>
+                                <strong>Scoped</strong>
+                                <p>Teachers see only what they are assigned to manage.</p>
+                            </article>
+                            <article class="preview-metric">
+                                <span>Printing</span>
+                                <strong>Ready</strong>
+                                <p>Generate individual student result sheets from the app.</p>
+                            </article>
+                            <article class="preview-metric">
+                                <span>Workflow</span>
+                                <strong>Connected</strong>
+                                <p>From class setup to final results without leaving the system.</p>
+                            </article>
+                        </div>
+                        <div class="preview-list">
+                            <div class="preview-list__row">Create class records and assign form teachers</div>
+                            <div class="preview-list__row">Attach subjects and subject teachers to each class</div>
+                            <div class="preview-list__row">Enter tests and exam scores with automatic totals</div>
+                            <div class="preview-list__row">Review class positions and printable student sheets</div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <section class="feature-grid">
+            <article class="feature-card">
+                <p class="eyebrow">For administrators</p>
+                <h2>Run setup with fewer loose ends.</h2>
+                <p>Teacher accounts, class ownership, and subject permissions stay visible in one place.</p>
+            </article>
+            <article class="feature-card">
+                <p class="eyebrow">For subject teachers</p>
+                <h2>Enter scores with less friction.</h2>
+                <p>Only assigned classes and subjects appear, so the entry screen stays focused and safe.</p>
+            </article>
+            <article class="feature-card">
+                <p class="eyebrow">For form teachers</p>
+                <h2>Review the whole class clearly.</h2>
+                <p>Totals, averages, positions, and printable sheets are ready from the results view.</p>
+            </article>
         </section>
     </main>
 </body>

@@ -6,34 +6,78 @@
     <title>Sign In - Result Management</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
+<body class="auth-body">
     <main class="auth-shell">
-        <section class="auth-card">
-            <div class="eyebrow">Secure Access</div>
-            <h1>Sign in to continue</h1>
-            <p class="auth-copy">
-                Teachers see only the subjects and classes assigned to them. Form teachers can review full class results and print result sheets.
-            </p>
+        <section class="auth-layout">
+            <aside class="auth-aside">
+                <div class="eyebrow">Secure Access</div>
+                <h1>Sign in to the school result workspace.</h1>
+                <p class="auth-copy">
+                    Administrators manage the academic setup. Teachers see only the classes and subjects assigned to
+                    them. Form teachers can review full class performance and print individual result sheets.
+                </p>
 
-            {% if bootstrap_hint %}
-            <div class="note-card">
-                <strong>Bootstrap admin:</strong>
-                <span>Use the seeded admin account from your environment or the default fallback `admin / admin12345` after running your migrations.</span>
-            </div>
-            {% endif %}
+                <div class="benefit-list">
+                    <div class="benefit-item">
+                        <strong>Scoped access</strong>
+                        <span>Each account sees only the tools needed for its role.</span>
+                    </div>
+                    <div class="benefit-item">
+                        <strong>Fast score entry</strong>
+                        <span>Capture tests and exams with automatic totals in one table.</span>
+                    </div>
+                    <div class="benefit-item">
+                        <strong>Print-ready output</strong>
+                        <span>Generate clear student sheets straight from the dashboard.</span>
+                    </div>
+                </div>
 
-            <form id="loginForm" class="auth-form">
-                <label>
-                    Username or email
-                    <input id="username" name="username" type="text" placeholder="Enter username" required>
-                </label>
-                <label>
-                    Password
-                    <input id="password" name="password" type="password" placeholder="Enter password" required>
-                </label>
-                <button type="submit" class="primary-button">Sign in</button>
-                <p id="loginMessage" class="status-text"></p>
-            </form>
+                {% if bootstrap_hint %}
+                <div class="note-card">
+                    <strong>Bootstrap admin</strong>
+                    <span>Use your seeded environment credentials, or the default fallback `admin / admin12345` after migrations run.</span>
+                </div>
+                {% endif %}
+            </aside>
+
+            <section class="auth-card">
+                <div class="auth-card__header">
+                    <div class="eyebrow">Welcome back</div>
+                    <h2>Continue to dashboard</h2>
+                    <p>Use your username or email with the password attached to your account.</p>
+                </div>
+
+                <form id="loginForm" class="auth-form">
+                    <label class="field">
+                        <span>Username or email</span>
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            placeholder="e.g. ada.okafor"
+                            autocomplete="username"
+                            required
+                        >
+                    </label>
+                    <label class="field">
+                        <span>Password</span>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </label>
+                    <button type="submit" class="primary-button">Sign in</button>
+                    <p id="loginMessage" class="status-text" aria-live="polite"></p>
+                </form>
+
+                <div class="credential-hint">
+                    Need an account? Ask an administrator to create a teacher profile and assign your classes.
+                </div>
+            </section>
         </section>
     </main>
 

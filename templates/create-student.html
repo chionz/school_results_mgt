@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="hero-strip">
+<section class="hero-banner hero-banner--compact">
     <div>
         <p class="panel-label">Class register</p>
         <h2>{{ class_obj.name }}</h2>
@@ -18,6 +18,7 @@
             <div>
                 <p class="panel-label">Add learner</p>
                 <h3>New student</h3>
+                <p class="muted-copy">Keep numbering and admission records tidy so result sheets stay accurate.</p>
             </div>
         </div>
         <form id="studentForm" class="form-grid form-grid--two">
@@ -35,7 +36,12 @@
             </label>
             <label>
                 Gender
-                <input id="gender" type="text" placeholder="Female">
+                <select id="gender">
+                    <option value="">Select gender</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Other">Other</option>
+                </select>
             </label>
             <button type="submit" class="primary-button">Add student</button>
         </form>
@@ -46,6 +52,7 @@
             <div>
                 <p class="panel-label">Register</p>
                 <h3>Students in {{ class_obj.name }}</h3>
+                <p class="muted-copy">This register powers score entry, rankings, and printable result sheets.</p>
             </div>
         </div>
         <div class="table-wrap">

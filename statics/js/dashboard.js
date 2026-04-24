@@ -1,9 +1,9 @@
-const toggleBtn = document.getElementById('toggleSidebar');
-const sidebar = document.querySelector('.sidebar');
+document.addEventListener("DOMContentLoaded", () => {
+    if (!document.body.classList.contains("app-body")) {
+        return;
+    }
 
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
+    window.requestAnimationFrame(() => {
+        document.body.classList.add("app-ready");
+    });
 });
-
-// Placeholder: later we can load dynamic views in #content-area
-console.log("Dashboard JS loaded");

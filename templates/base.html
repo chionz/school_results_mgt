@@ -7,8 +7,12 @@
     <link rel="stylesheet" href="/static/css/dashboard.css">
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="app-body">
+    <div class="app-glow app-glow--one"></div>
+    <div class="app-glow app-glow--two"></div>
     <div class="app-shell">
+        <button type="button" class="sidebar-overlay" data-sidebar-overlay aria-label="Close navigation"></button>
+
         <aside class="app-sidebar" id="sidebar">
             <a href="/app/dashboard/" class="brand-mark">
                 <span class="brand-mark__badge">RM</span>
@@ -18,13 +22,16 @@
                 </div>
             </a>
 
-            <nav class="sidebar-nav">
-                {% for item in navigation %}
-                <a href="{{ item.href }}" class="sidebar-link {% if item.active %}is-active{% endif %}">
-                    {{ item.label }}
-                </a>
-                {% endfor %}
-            </nav>
+            <div class="sidebar-section">
+                <p class="sidebar-caption">Workspace</p>
+                <nav class="sidebar-nav">
+                    {% for item in navigation %}
+                    <a href="{{ item.href }}" class="sidebar-link {% if item.active %}is-active{% endif %}">
+                        {{ item.label }}
+                    </a>
+                    {% endfor %}
+                </nav>
+            </div>
 
             <div class="sidebar-panel">
                 <p class="panel-label">Signed in as</p>
@@ -36,14 +43,28 @@
 
         <main class="app-main">
             <header class="page-header">
-                <button type="button" class="menu-button" data-sidebar-toggle>Menu</button>
-                <div class="page-heading">
-                    <p class="page-kicker">Result Management System</p>
-                    <h1>{{ title }}</h1>
-                    <p>{{ page_description }}</p>
+                <div class="page-header__lead">
+                    <button
+                        type="button"
+                        class="menu-button"
+                        data-sidebar-toggle
+                        aria-controls="sidebar"
+                        aria-expanded="false"
+                    >
+                        Menu
+                    </button>
+                    <div class="page-heading">
+                        <p class="page-kicker">Result Management System</p>
+                        <h1>{{ title }}</h1>
+                        <p>{{ page_description }}</p>
+                    </div>
                 </div>
                 <div class="page-header__meta">
-                    <span class="pill">{{ "Admin" if current_user.is_admin else "Teacher" }}</span>
+                    <span class="pill">{{ "Admin control" if current_user.is_admin else "Teacher workspace" }}</span>
+                    <div class="user-badge">
+                        <strong>{{ current_user.full_name }}</strong>
+                        <span>@{{ current_user.username }}</span>
+                    </div>
                 </div>
             </header>
 
@@ -59,11 +80,12 @@
         window.__RMS_APP__ = {
             currentUser: {
                 id: {{ current_user.id }},
-                role: "{{ current_user.role }}",
-                fullName: "{{ current_user.full_name }}"
+                role: {{ current_user.role|tojson }},
+                fullName: {{ current_user.full_name|tojson }}
             }
         };
     </script>
+    <script src="/static/js/app.js"></script>
     <script src="/static/js/dashboard.js"></script>
     {% block scripts %}{% endblock %}
 </body>
