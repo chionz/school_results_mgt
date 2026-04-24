@@ -621,6 +621,20 @@ tbody tr:hover {
     justify-content: space-between;
 }
 
+.table-inline-form {
+    display: grid;
+    gap: 10px;
+    min-width: 220px;
+}
+
+.table-inline-form select {
+    min-height: 44px;
+}
+
+.table-inline-form .secondary-button {
+    justify-content: center;
+}
+
 .result-sheet {
     display: grid;
     gap: 20px;

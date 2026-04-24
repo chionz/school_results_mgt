@@ -58,6 +58,9 @@
                         <th>Form teacher</th>
                         <th>Students</th>
                         <th>Subjects</th>
+                        {% if is_admin %}
+                        <th>Assign form teacher</th>
+                        {% endif %}
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -65,9 +68,34 @@
                     {% for class_item in classes %}
                     <tr>
                         <td><strong>{{ class_item.name }}</strong></td>
-                        <td>{{ class_item.form_teacher_name or "Not assigned" }}</td>
+                        <td data-form-teacher-display>{{ class_item.form_teacher_name or "Not assigned" }}</td>
                         <td>{{ class_item.student_count }}</td>
                         <td>{{ class_item.subject_count }}</td>
+                        {% if is_admin %}
+                        <td>
+                            <div class="table-inline-form">
+                                <select data-form-teacher-select data-class-id="{{ class_item.id }}">
+                                    <option value="">No form teacher</option>
+                                    {% for teacher in teachers %}
+                                    <option
+                                        value="{{ teacher.id }}"
+                                        {% if class_item.form_teacher_id == teacher.id %}selected{% endif %}
+                                    >
+                                        {{ teacher.full_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <button
+                                    type="button"
+                                    class="secondary-button"
+                                    data-assign-form-teacher
+                                    data-class-id="{{ class_item.id }}"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </td>
+                        {% endif %}
                         <td class="table-actions">
                             <a href="/app/dashboard/add-student?class_id={{ class_item.id }}" class="chip-link">Students</a>
                             <a href="/app/dashboard/score-entry?class_id={{ class_item.id }}" class="chip-link">Scores</a>
@@ -76,7 +104,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="empty-row">No classes available yet.</td>
+                        <td colspan="{% if is_admin %}6{% else %}5{% endif %}" class="empty-row">No classes available yet.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -109,5 +137,39 @@
             }
         });
     }
+
+    document.querySelectorAll("[data-assign-form-teacher]").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const classId = button.dataset.classId;
+            const row = button.closest("tr");
+            const select = row.querySelector("[data-form-teacher-select]");
+            const display = row.querySelector("[data-form-teacher-display]");
+            const selectedOption = select.options[select.selectedIndex];
+
+            button.disabled = true;
+            button.textContent = "Saving...";
+
+            try {
+                const updatedClass = await window.rms.request(`/api/classes/${classId}/form-teacher`, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        teacher_id: select.value ? Number(select.value) : null
+                    })
+                });
+
+                display.textContent = updatedClass.form_teacher_name || "Not assigned";
+                window.rms.toast(
+                    updatedClass.form_teacher_name
+                        ? `${selectedOption.text} assigned to ${updatedClass.name}.`
+                        : `Form teacher cleared for ${updatedClass.name}.`
+                );
+            } catch (error) {
+                window.rms.toast(error.message, "error");
+            } finally {
+                button.disabled = false;
+                button.textContent = "Save";
+            }
+        });
+    });
 </script>
 {% endblock %}
