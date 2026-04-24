@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Result Management</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <main class="auth-shell">
+        <section class="auth-card">
+            <div class="eyebrow">Secure Access</div>
+            <h1>Sign in to continue</h1>
+            <p class="auth-copy">
+                Teachers see only the subjects and classes assigned to them. Form teachers can review full class results and print result sheets.
+            </p>
+
+            {% if bootstrap_hint %}
+            <div class="note-card">
+                <strong>Bootstrap admin:</strong>
+                <span>Use the seeded admin account from your environment or the default fallback `admin / admin12345` after running your migrations.</span>
+            </div>
+            {% endif %}
+
+            <form id="loginForm" class="auth-form">
+                <label>
+                    Username or email
+                    <input id="username" name="username" type="text" placeholder="Enter username" required>
+                </label>
+                <label>
+                    Password
+                    <input id="password" name="password" type="password" placeholder="Enter password" required>
+                </label>
+                <button type="submit" class="primary-button">Sign in</button>
+                <p id="loginMessage" class="status-text"></p>
+            </form>
+        </section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

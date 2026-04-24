@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card">
+    <div class="card-head">
+        <div>
+            <p class="panel-label">Class selection</p>
+            <h3>Choose class for score entry</h3>
+        </div>
+    </div>
+    <div class="selector-row">
+        <select id="scoreClassSelect">
+            <option value="">Select class</option>
+            {% for class_item in classes %}
+            <option value="{{ class_item.id }}">{{ class_item.name }}</option>
+            {% endfor %}
+        </select>
+        <span class="muted-copy">Admins can edit all subjects. Teachers can edit only the subjects assigned to them.</span>
+    </div>
+</section>
+
+<section class="card">
+    <div class="card-head">
+        <div>
+            <p class="panel-label">Entry grid</p>
+            <h3 id="scoreEntryTitle">Select a class to begin</h3>
+        </div>
+    </div>
+    <div id="scoreEntryMeta" class="chips-row"></div>
+    <div class="table-wrap">
+        <table id="scoreEntryTable">
+            <thead id="scoreHead"></thead>
+            <tbody id="scoreBody">
+                <tr>
+                    <td class="empty-row">No class selected.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const scoreClassSelect = document.getElementById("scoreClassSelect");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("class_id")) {
+        scoreClassSelect.value = params.get("class_id");
+    }
+
+    function buildScoreTable(data) {
+        const head = document.getElementById("scoreHead");
+        const body = document.getElementById("scoreBody");
+        const meta = document.getElementById("scoreEntryMeta");
+        document.getElementById("scoreEntryTitle").textContent = `${data.class_name} score entry`;
+
+        meta.innerHTML = data.subjects.map((subject) => `
+            <span class="pill">${subject.name}${subject.teacher_name ? ` • ${subject.teacher_name}` : ""}</span>
+        `).join("");
+
+        let topRow = '<tr><th rowspan="2">Class no.</th><th rowspan="2">Student</th>';
+        data.subjects.forEach((subject) => {
+            topRow += `<th colspan="5">${subject.name}</th>`;
+        });
+        topRow += '</tr><tr>';
+        data.subjects.forEach(() => {
+            topRow += '<th>T1</th><th>T2</th><th>T3</th><th>Exam</th><th>Total</th>';
+        });
+        topRow += '</tr>';
+        head.innerHTML = topRow;
+
+        body.innerHTML = data.students.map((student) => {
+            const subjectCells = student.subjects.map((subject) => `
+                <td><input class="score-input" data-field="test1" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test1 || ""}"></td>
+                <td><input class="score-input" data-field="test2" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test2 || ""}"></td>
+                <td><input class="score-input" data-field="test3" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.test3 || ""}"></td>
+                <td><input class="score-input" data-field="exam" data-student="${student.id}" data-subject="${subject.subject_id}" value="${subject.exam || ""}"></td>
+                <td><input class="score-total" value="${subject.total || 0}" disabled></td>
+            `).join("");
+
+            return `
+                <tr>
+                    <td><strong>${student.class_number}</strong></td>
+                    <td>${student.name}</td>
+                    ${subjectCells}
+                </tr>
+            `;
+        }).join("");
+
+        body.querySelectorAll(".score-input").forEach((input) => {
+            input.addEventListener("change", async (event) => {
+                const target = event.target;
+                const payload = {
+                    student_id: Number(target.dataset.student),
+                    subject_id: Number(target.dataset.subject),
+                    [target.dataset.field]: target.value === "" ? null : Number(target.value)
+                };
+
+                try {
+                    await window.rms.request("/api/scores/", {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    });
+                    window.rms.toast("Score saved.");
+                    loadScoreEntry(scoreClassSelect.value, false);
+                } catch (error) {
+                    window.rms.toast(error.message, "error");
+                }
+            });
+        });
+    }
+
+    async function loadScoreEntry(classId, pushState = true) {
+        if (!classId) {
+            return;
+        }
+        if (pushState) {
+            const url = new URL(window.location.href);
+            url.searchParams.set("class_id", classId);
+            window.history.replaceState({}, "", url);
+        }
+
+        try {
+            const data = await window.rms.request(`/api/scores/entry/${classId}`);
+            buildScoreTable(data);
+        } catch (error) {
+            document.getElementById("scoreHead").innerHTML = "";
+            document.getElementById("scoreBody").innerHTML = `<tr><td class="empty-row">${error.message}</td></tr>`;
+            document.getElementById("scoreEntryMeta").innerHTML = "";
+        }
+    }
+
+    scoreClassSelect.addEventListener("change", (event) => loadScoreEntry(event.target.value));
+    if (scoreClassSelect.value) {
+        loadScoreEntry(scoreClassSelect.value, false);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content-grid content-grid--wide">
+    <article class="card">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Account setup</p>
+                <h3>Create teacher account</h3>
+            </div>
+        </div>
+        <form id="teacherForm" class="form-grid form-grid--two">
+            <label>
+                Full name
+                <input id="teacherName" type="text" placeholder="Ada Okafor" required>
+            </label>
+            <label>
+                Username
+                <input id="teacherUsername" type="text" placeholder="ada.okafor" required>
+            </label>
+            <label>
+                Email
+                <input id="teacherEmail" type="email" placeholder="ada@school.com" required>
+            </label>
+            <label>
+                Temporary password
+                <input id="teacherPassword" type="text" placeholder="Create password" required>
+            </label>
+            <button type="submit" class="primary-button">Create teacher</button>
+        </form>
+    </article>
+
+    <article class="card">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Staff accounts</p>
+                <h3>Teachers</h3>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td><strong>{{ teacher.full_name }}</strong></td>
+                        <td>{{ teacher.username }}</td>
+                        <td>{{ teacher.email }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-row">No teacher accounts yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById("teacherForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = {
+            full_name: document.getElementById("teacherName").value.trim(),
+            username: document.getElementById("teacherUsername").value.trim(),
+            email: document.getElementById("teacherEmail").value.trim(),
+            password: document.getElementById("teacherPassword").value
+        };
+
+        try {
+            await window.rms.request("/api/users/teachers", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            window.rms.toast("Teacher account created.");
+            window.location.reload();
+        } catch (error) {
+            window.rms.toast(error.message, "error");
+        }
+    });
+</script>
+{% endblock %}

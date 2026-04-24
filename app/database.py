@@ -1,37 +1,34 @@
 import os
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker, declarative_base, scoped_session
+from pathlib import Path
+
 from dotenv import load_dotenv
+from sqlalchemy import MetaData, create_engine
+from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DB_URL")
-print(DATABASE_URL)
-
-#engine = create_engine(DATABASE_URL)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 metadata = MetaData()
 Base = declarative_base()
 
 
+def build_database_url(test_mode: bool = False) -> str:
+    if test_mode:
+        return f"sqlite:///{BASE_DIR / 'test.db'}"
+
+    db_type = os.getenv("DB_TYPE", "sqlite").lower()
+    if db_type == "sqlite":
+        sqlite_path = os.getenv("SQLITE_PATH", str(BASE_DIR / "results.db"))
+        return f"sqlite:///{sqlite_path}"
+
+    return os.getenv("DB_URL", f"sqlite:///{BASE_DIR / 'results.db'}")
+
+
 def get_db_engine(test_mode: bool = False):
-    DATABASE_URL = os.getenv("DB_URL")
-
-    if os.getenv("DB_TYPE") == "sqlite" or test_mode:
-        BASE_PATH = f"sqlite:///{BASE_DIR}"
-        DATABASE_URL = BASE_PATH + "/"
-
-        if test_mode:
-            DATABASE_URL = BASE_PATH + "test.db"
-
-            return create_engine(
-                DATABASE_URL, connect_args={"check_same_thread": False}
-            )
-    elif os.getenv("DB_TYPE") == "postgresql":
-        DATABASE_URL = DATABASE_URL = os.getenv("DB_URL")
-        
-    #print (f"connecting to {DATABASE_URL}")
-    return create_engine(DATABASE_URL)
+    database_url = build_database_url(test_mode=test_mode)
+    connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
+    return create_engine(database_url, connect_args=connect_args)
 
 
 engine = get_db_engine()
@@ -41,8 +38,8 @@ db_session = scoped_session(SessionLocal)
 
 import app.models
 
+
 def create_database():
-    
     return Base.metadata.create_all(bind=engine)
 
 

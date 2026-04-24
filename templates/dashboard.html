@@ -1,46 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Result Management System</title>
-    <link rel="stylesheet" href="/static/css/dashboard.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>RMS</h2>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active">Dashboard</a></li>
-                <li><a href="#">Add Students</a></li>
-                <li><a href="#">Add Subjects</a></li>
-                <li><a href="#">Enter Scores</a></li>
-                <li><a href="#">View Results</a></li>
-                <li><a href="#">Settings</a></li>
-            </ul>
-        </aside>
+{% extends "base.html" %}
 
-        <!-- Main content -->
-        <main class="main-content">
-            <header>
-                <button id="toggleSidebar" class="toggle-btn">☰</button>
-                <h1>Dashboard</h1>
-            </header>
-
-            <section class="dashboard-welcome">
-                <h2>Welcome, Teacher!</h2>
-                <p>Select an option from the sidebar to get started.</p>
-            </section>
-
-            <section id="content-area">
-                <!-- Dynamic views will be rendered here via JS -->
-            </section>
-        </main>
+{% block content %}
+<section class="hero-strip">
+    <div>
+        <p class="panel-label">Today’s workspace</p>
+        <h2>{{ "School administration overview" if current_user.is_admin else "Your teaching workspace" }}</h2>
+        <p class="muted-copy">
+            Use the shortcuts below to move quickly between setup, score entry, class review, and printable student reports.
+        </p>
     </div>
+    <div class="hero-strip__actions">
+        <a href="/app/dashboard/score-entry" class="primary-button">Enter scores</a>
+        <a href="/app/dashboard/classes/result" class="secondary-button">View results</a>
+    </div>
+</section>
 
-    <script src="/static/js/dashboard.js"></script>
-</body>
-</html>
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-card__label">Accessible classes</span>
+        <strong>{{ total_classes }}</strong>
+        <p>Classes visible to your account.</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__label">Subject catalogue</span>
+        <strong>{{ total_subjects }}</strong>
+        <p>Total subjects available in the school setup.</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__label">Form classes</span>
+        <strong>{{ form_classes|length }}</strong>
+        <p>Classes where full results can be reviewed.</p>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="card">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Classes</p>
+                <h3>Class access</h3>
+            </div>
+            <a href="/app/dashboard/classes" class="text-link">Manage classes</a>
+        </div>
+        <div class="stack-list">
+            {% for class_item in classes %}
+            <div class="stack-item">
+                <div>
+                    <strong>{{ class_item.name }}</strong>
+                    <p>{{ class_item.student_count }} students • {{ class_item.subject_count }} subjects</p>
+                </div>
+                <div class="stack-actions">
+                    <a href="/app/dashboard/score-entry?class_id={{ class_item.id }}" class="chip-link">Scores</a>
+                    <a href="/app/dashboard/classes/result?class_id={{ class_item.id }}" class="chip-link">Results</a>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No classes are available yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="card">
+        <div class="card-head">
+            <div>
+                <p class="panel-label">Assignments</p>
+                <h3>Subject teaching assignments</h3>
+            </div>
+            {% if current_user.is_admin %}
+            <a href="/app/dashboard/add-subject" class="text-link">Manage subjects</a>
+            {% endif %}
+        </div>
+        <div class="stack-list">
+            {% for assignment in teaching_assignments %}
+            <div class="stack-item">
+                <div>
+                    <strong>{{ assignment.subject_name }}</strong>
+                    <p>{{ assignment.teacher_name or "Teacher not assigned" }}</p>
+                </div>
+                <span class="pill">Class {{ assignment.class_id }}</span>
+            </div>
+            {% else %}
+            <p class="empty-state">No subject assignments are linked to your account yet.</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

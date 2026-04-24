@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from typing import Optional, Union, List
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class scoreSchema(BaseModel):
-
     student_id: int
     subject_id: int
-    test1: Optional[float] = None
-    test2: Optional[float] = None
-    test3: Optional[float] = None
-    exam: Optional[float] = None
+    test1: Optional[float] = Field(default=None, ge=0, le=100)
+    test2: Optional[float] = Field(default=None, ge=0, le=100)
+    test3: Optional[float] = Field(default=None, ge=0, le=100)
+    exam: Optional[float] = Field(default=None, ge=0, le=100)

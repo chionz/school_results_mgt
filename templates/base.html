@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Result Management</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="app-sidebar" id="sidebar">
+            <a href="/app/dashboard/" class="brand-mark">
+                <span class="brand-mark__badge">RM</span>
+                <div>
+                    <strong>Result Manager</strong>
+                    <span>School workflow hub</span>
+                </div>
+            </a>
+
+            <nav class="sidebar-nav">
+                {% for item in navigation %}
+                <a href="{{ item.href }}" class="sidebar-link {% if item.active %}is-active{% endif %}">
+                    {{ item.label }}
+                </a>
+                {% endfor %}
+            </nav>
+
+            <div class="sidebar-panel">
+                <p class="panel-label">Signed in as</p>
+                <h3>{{ current_user.full_name }}</h3>
+                <p class="panel-subtitle">{{ "Administrator" if current_user.is_admin else "Teacher account" }}</p>
+                <button class="secondary-button sidebar-logout" type="button" data-logout-button>Sign out</button>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <header class="page-header">
+                <button type="button" class="menu-button" data-sidebar-toggle>Menu</button>
+                <div class="page-heading">
+                    <p class="page-kicker">Result Management System</p>
+                    <h1>{{ title }}</h1>
+                    <p>{{ page_description }}</p>
+                </div>
+                <div class="page-header__meta">
+                    <span class="pill">{{ "Admin" if current_user.is_admin else "Teacher" }}</span>
+                </div>
+            </header>
+
+            <section class="page-content">
+                {% block content %}{% endblock %}
+            </section>
+        </main>
+    </div>
+
+    <div id="toast-root" class="toast-root"></div>
+
+    <script>
+        window.__RMS_APP__ = {
+            currentUser: {
+                id: {{ current_user.id }},
+                role: "{{ current_user.role }}",
+                fullName: "{{ current_user.full_name }}"
+            }
+        };
+    </script>
+    <script src="/static/js/dashboard.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
